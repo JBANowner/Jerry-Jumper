@@ -1,0 +1,304 @@
+"use strict";
+window.onload = function() {
+    const canvas = document.getElementById('gameCanvas');
+    if (!canvas) {
+        console.error('Canvas element not found');
+        return;
+    }
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        console.error('Failed to get 2D context');
+        return;
+    }
+
+    // Load player head image
+    const playerHead = new Image();
+    playerHead.src = 'playerHead.png';
+    playerHead.onload = function() {
+        console.log('Player head loaded successfully');
+    };
+    playerHead.onerror = function() {
+        console.error('Failed to load playerHead.png - check file path or name');
+    };
+
+    // Load SmokeyTheBera’s face for non-breakable platforms
+    const platformFace = new Image();
+    platformFace.src = 'platformFace.png';
+    platformFace.onload = function() {
+        console.log('Platform face loaded successfully');
+    };
+    platformFace.onerror = function() {
+        console.error('Failed to load platformFace.png - check file path or name');
+    };
+
+    // Load DevBearachain’s face for breakable platforms
+    const breakableFace = new Image();
+    breakableFace.src = 'breakableFace.png';
+    breakableFace.onload = function() {
+        console.log('Breakable face loaded successfully');
+    };
+    breakableFace.onerror = function() {
+        console.error('Failed to load breakableFace.png - check file path or name');
+    };
+
+    const player = {
+        x: 200,
+        y: 560,
+        width: 40,
+        height: 40,
+        dy: 0,
+        gravity: 0.5,
+        jumpPower: -15,
+        isJumping: false,
+        onPlatform: false,
+        hasStarted: false,
+        currentPlatform: null,
+        speedX: 0 // New: Horizontal speed for gliding
+    };
+
+    let platforms = [
+        { x: 150, y: 500, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
+        { x: 100, y: 440, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
+        { x: 200, y: 380, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
+        { x: 120, y: 320, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
+        { x: 180, y: 260, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 }
+    ];
+
+    let bees = [];
+    let beeSpawnTimer = 0;
+
+    let platformCount = 8;
+    let score = 0;
+    let level = 1;
+    let difficultyFactor = 1;
+
+    // Track key states
+    let keys = {
+        left: false,
+        right: false
+    };
+
+    function spawnPlatforms() {
+        while (platforms.length < platformCount) {
+            const highestY = platforms.length ? Math.min(...platforms.map(p => p.y)) : 260;
+            const isMoving = Math.random() < 0.3 * difficultyFactor;
+            const isBreakable = Math.random() < 0.2 * difficultyFactor;
+            let platform = {
+                x: Math.random() * (canvas.width - 100),
+                y: highestY - 60 - Math.random() * 40,
+                width: 100,
+                height: 20,
+                speed: isMoving ? (Math.random() > 0.5 ? 2 : -2) * (difficultyFactor * 0.5) : 0,
+                breakable: isBreakable,
+                breakTimer: isBreakable ? 60 : 0
+            };
+            platforms.push(platform);
+        }
+    }
+
+    function spawnBee() {
+        if (level < 5) return;
+        const spawnChance = Math.random() < 0.02 * (level - 4);
+        if (spawnChance) {
+            const direction = Math.random() < 0.5 ? 1 : -1;
+            const bee = {
+                x: direction === 1 ? -20 : canvas.width + 20,
+                y: Math.random() * (canvas.height - 100) + 50,
+                width: 20,
+                height: 20,
+                speed: direction * (3 + difficultyFactor)
+            };
+            bees.push(bee);
+        }
+    }
+
+    function drawPlayer() {
+        if (playerHead.complete && playerHead.naturalWidth !== 0) {
+            ctx.drawImage(playerHead, player.x, player.y, player.width, player.height);
+        } else {
+            ctx.fillStyle = 'red';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+        }
+    }
+
+    function drawPlatforms() {
+        platforms.forEach(platform => {
+            if (platform.breakable && breakableFace.complete && breakableFace.naturalWidth !== 0) {
+                ctx.drawImage(breakableFace, platform.x, platform.y, platform.width, platform.height);
+            } else if (!platform.breakable && platformFace.complete && platformFace.naturalWidth !== 0) {
+                ctx.drawImage(platformFace, platform.x, platform.y, platform.width, platform.height);
+            } else {
+                ctx.fillStyle = platform.breakable ? 'brown' : 'green';
+                ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+            }
+        });
+    }
+
+    function drawBees() {
+        bees.forEach(bee => {
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(bee.x, bee.y, bee.width, bee.height);
+        });
+    }
+
+    function update() {
+        if (!player.onPlatform) {
+            player.dy += player.gravity;
+            player.y += player.dy;
+        }
+
+        // Update horizontal movement based on key states
+        player.speedX = 0; // Reset speed
+        if (keys.left) player.speedX = -5; // Glide left
+        if (keys.right) player.speedX = 5; // Glide right
+        player.x += player.speedX;
+
+        // Keep wraparound logic
+        if (player.x < 0) player.x = canvas.width - player.width;
+        if (player.x > canvas.width - player.width) player.x = 0;
+
+        if (player.y < canvas.height / 2) {
+            const scrollSpeed = player.dy < 0 ? -player.dy : 2;
+            platforms.forEach(platform => platform.y += scrollSpeed);
+            bees.forEach(bee => bee.y += scrollSpeed);
+            player.y += scrollSpeed;
+            score += Math.floor(difficultyFactor);
+        }
+
+        platforms.forEach(platform => {
+            if (platform.speed) {
+                platform.x += platform.speed;
+                if (player.onPlatform && player.currentPlatform === platform) {
+                    player.x += platform.speed;
+                }
+                if (platform.x < 0) platform.speed = Math.abs(platform.speed);
+                if (platform.x + platform.width > canvas.width) platform.speed = -Math.abs(platform.speed);
+            }
+        });
+
+        bees.forEach(bee => {
+            bee.x += bee.speed;
+        });
+        bees = bees.filter(bee => bee.x + bee.width > 0 && bee.x < canvas.width);
+
+        beeSpawnTimer++;
+        if (beeSpawnTimer > 30) {
+            spawnBee();
+            beeSpawnTimer = 0;
+        }
+
+        platforms = platforms.filter(p => p.y < canvas.height + 20);
+        spawnPlatforms();
+
+        player.onPlatform = false;
+        player.currentPlatform = null;
+        platforms.forEach((platform, index) => {
+            if (player.dy >= 0 &&
+                player.x < platform.x + platform.width &&
+                player.x + player.width > platform.x &&
+                player.y + player.height > platform.y &&
+                player.y + player.height <= platform.y + player.dy + 5) {
+                player.y = platform.y - player.height;
+                player.dy = 0;
+                player.isJumping = false;
+                player.onPlatform = true;
+                player.currentPlatform = platform;
+                if (platform.breakable && platform.breakTimer > 0) {
+                    platform.breakTimer--;
+                    if (platform.breakTimer <= 0) {
+                        platforms.splice(index, 1);
+                        player.onPlatform = false;
+                        player.currentPlatform = null;
+                    }
+                }
+            }
+        });
+
+        bees.forEach(bee => {
+            if (player.x < bee.x + bee.width &&
+                player.x + player.width > bee.x &&
+                player.y < bee.y + bee.height &&
+                player.y + player.height > bee.y) {
+                alert(`Game Over! Hit by a bee! Level: ${level}, Score: ${score}`);
+                reset();
+            }
+        });
+
+        if (player.y + player.height > canvas.height) {
+            player.y = canvas.height - player.height;
+            player.dy = 0;
+            player.isJumping = false;
+            if (player.hasStarted && !player.onPlatform) {
+                alert(`Game Over! Level: ${level}, Score: ${score}`);
+                reset();
+            }
+        }
+
+        if (score > level * 100) {
+            level++;
+            difficultyFactor += 0.2;
+            platformCount = Math.min(12, platformCount + 1);
+        }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawPlayer();
+        drawPlatforms();
+        drawBees();
+        ctx.fillStyle = 'black';
+        ctx.fillText(`Score: ${score} | Level: ${level}`, 10, 20);
+    }
+
+    function reset() {
+        player.y = 560;
+        player.dy = 0;
+        player.isJumping = false;
+        player.onPlatform = false;
+        player.hasStarted = false;
+        player.currentPlatform = null;
+        player.speedX = 0; // Reset horizontal speed
+        platforms = [
+            { x: 150, y: 500, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
+            { x: 100, y: 440, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
+            { x: 200, y: 380, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
+            { x: 120, y: 320, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
+            { x: 180, y: 260, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 }
+        ];
+        bees = [];
+        score = 0;
+        level = 1;
+        difficultyFactor = 1;
+        platformCount = 8;
+        spawnPlatforms();
+    }
+
+    // Key press handling
+    document.addEventListener('keydown', (e) => {
+        console.log(`Key pressed: ${e.key}`);
+        if (e.key === 'ArrowLeft') keys.left = true;
+        if (e.key === 'ArrowRight') keys.right = true;
+        if (e.key === 'ArrowUp' && !player.isJumping) {
+            player.dy = player.jumpPower;
+            player.isJumping = true;
+            player.onPlatform = false;
+            player.hasStarted = true;
+            player.currentPlatform = null;
+        }
+    });
+
+    // Key release handling
+    document.addEventListener('keyup', (e) => {
+        if (e.key === 'ArrowLeft') keys.left = false;
+        if (e.key === 'ArrowRight') keys.right = false;
+    });
+
+    function gameLoop() {
+        update();
+        draw();
+        requestAnimationFrame(gameLoop);
+    }
+
+    spawnPlatforms();
+    gameLoop();
+};
