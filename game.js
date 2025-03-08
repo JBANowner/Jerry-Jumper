@@ -10,6 +10,14 @@ window.onload = function() {
         console.error('Failed to get 2D context');
         return;
     }
+    const scoreDisplay = document.getElementById('scoreDisplay');
+
+    // Load background music
+    const backgroundMusic = new Audio('Retro_Game_Arcade.mp3'); // Adjust to your MP3 filename/path
+    backgroundMusic.loop = true;
+    backgroundMusic.volume = 0.5;
+    console.log('Background music loaded:', backgroundMusic.src);
+    let musicStarted = false;
 
     // Load player head image
     const playerHead = new Image();
@@ -41,19 +49,29 @@ window.onload = function() {
         console.error('Failed to load breakableFace.png - check file path or name');
     };
 
+    // Load bee image
+    const beeImage = new Image();
+    beeImage.src = 'bee.png';
+    beeImage.onload = function() {
+        console.log('Bee image loaded successfully');
+    };
+    beeImage.onerror = function() {
+        console.error('Failed to load bee.png - check file path or name');
+    };
+
     const player = {
         x: 200,
         y: 560,
         width: 40,
         height: 40,
         dy: 0,
-        gravity: 0.5,
-        jumpPower: -15,
+        gravity: 0.8,
+        jumpPower: -20,
         isJumping: false,
         onPlatform: false,
         hasStarted: false,
         currentPlatform: null,
-        speedX: 0 // New: Horizontal speed for gliding
+        speedX: 0 // Horizontal speed for gliding
     };
 
     let platforms = [
@@ -136,8 +154,12 @@ window.onload = function() {
 
     function drawBees() {
         bees.forEach(bee => {
-            ctx.fillStyle = '#000000';
-            ctx.fillRect(bee.x, bee.y, bee.width, bee.height);
+            if (beeImage.complete && beeImage.naturalWidth !== 0) {
+                ctx.drawImage(beeImage, bee.x, bee.y, bee.width, bee.height);
+            } else {
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(bee.x, bee.y, bee.width, bee.height);
+            }
         });
     }
 
@@ -149,13 +171,13 @@ window.onload = function() {
 
         // Update horizontal movement based on key states
         player.speedX = 0; // Reset speed
-        if (keys.left) player.speedX = -5; // Glide left
-        if (keys.right) player.speedX = 5; // Glide right
+        if (keys.left) player.speedX = -10; // Glide left
+        if (keys.right) player.speedX = 10; // Glide right
         player.x += player.speedX;
 
-        // Keep wraparound logic
-        if (player.x < 0) player.x = canvas.width - player.width;
-        if (player.x > canvas.width - player.width) player.x = 0;
+        // Clamp to screen edges (no wraparound)
+        if (player.x < 0) player.x = 0;
+        if (player.x > canvas.width - player.width) player.x = canvas.width - player.width;
 
         if (player.y < canvas.height / 2) {
             const scrollSpeed = player.dy < 0 ? -player.dy : 2;
@@ -193,11 +215,11 @@ window.onload = function() {
         player.onPlatform = false;
         player.currentPlatform = null;
         platforms.forEach((platform, index) => {
-            if (player.dy >= 0 &&
-                player.x < platform.x + platform.width &&
-                player.x + player.width > platform.x &&
-                player.y + player.height > platform.y &&
-                player.y + player.height <= platform.y + player.dy + 5) {
+            if (player.dy >= 0 && // Falling or stationary
+                player.x < platform.x + platform.width && // Left edge overlap
+                player.x + player.width > platform.x && // Right edge overlap
+                player.y + player.height > platform.y && // Bottom of player past top of platform
+                player.y + player.height <= platform.y + player.dy + 5) { // Not too far below
                 player.y = platform.y - player.height;
                 player.dy = 0;
                 player.isJumping = false;
@@ -246,8 +268,7 @@ window.onload = function() {
         drawPlayer();
         drawPlatforms();
         drawBees();
-        ctx.fillStyle = 'black';
-        ctx.fillText(`Score: ${score} | Level: ${level}`, 10, 20);
+        scoreDisplay.textContent = `Score: ${score} | Level: ${level}`;
     }
 
     function reset() {
@@ -257,7 +278,9 @@ window.onload = function() {
         player.onPlatform = false;
         player.hasStarted = false;
         player.currentPlatform = null;
-        player.speedX = 0; // Reset horizontal speed
+        player.speedX = 0;
+        keys.left = false;
+        keys.right = false;
         platforms = [
             { x: 150, y: 500, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
             { x: 100, y: 440, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
@@ -284,6 +307,12 @@ window.onload = function() {
             player.onPlatform = false;
             player.hasStarted = true;
             player.currentPlatform = null;
+            if (!musicStarted) {
+                backgroundMusic.play().catch(error => {
+                    console.error('Error playing music on jump:', error);
+                });
+                musicStarted = true;
+            }
         }
     });
 
