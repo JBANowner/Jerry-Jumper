@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Jerry Jumper</title>
+    <link rel="stylesheet" href="styles.css">
     <style>
         #scoreDisplay {
             font-size: 20px;
@@ -10,8 +11,11 @@
             text-align: center;
             margin-bottom: 10px;
         }
-        #gameCanvas {
-            border: 1px solid black;
+        body {
+            display: block; /* Override flex to stack elements */
+            height: auto; /* Allow natural height */
+        }
+        canvas {
             display: block;
             margin: 0 auto;
         }
