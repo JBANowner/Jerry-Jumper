@@ -257,6 +257,9 @@ window.onload = function() {
     }
 
     document.addEventListener('keydown', (e) => {
+        if (['ArrowUp', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            e.preventDefault();
+        }
         console.log(`Key pressed: ${e.key}`);
         if (e.key === 'ArrowLeft') keys.left = true;
         if (e.key === 'ArrowRight') keys.right = true;
