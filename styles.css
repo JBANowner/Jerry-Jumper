@@ -5,6 +5,7 @@ body {
     height: 100vh;
     margin: 0;
     background-color: #87CEEB;
+    overflow: hidden; /* Prevent scrolling on mobile */
 }
 
 canvas {
