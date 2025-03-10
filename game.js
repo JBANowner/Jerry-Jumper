@@ -7,10 +7,9 @@ window.onload = function() {
     const scoreDisplay = document.getElementById('scoreDisplay');
     if (!scoreDisplay) { console.error('Score display element not found'); return; }
 
-    // Style score display
-    scoreDisplay.style.fontSize = '20px';
-    scoreDisplay.style.color = 'green';
-    scoreDisplay.style.fontFamily = 'Arial, sans-serif';
+    // Logical game dimensions
+    const GAME_WIDTH = 400;
+    const GAME_HEIGHT = 600;
 
     // Load background music with full URL
     const backgroundMusic = new Audio('https://jbanowner.github.io/Jerry-Jumper/Retro_Game_Arcade.mp3');
@@ -62,13 +61,38 @@ window.onload = function() {
 
     let keys = { left: false, right: false };
 
+    // Resize canvas to fit screen while maintaining aspect ratio
+    function resizeCanvas() {
+        const container = document.getElementById('gameContainer');
+        const aspectRatio = GAME_HEIGHT / GAME_WIDTH;
+        let width = window.innerWidth;
+        let height = width * aspectRatio;
+
+        if (height > window.innerHeight) {
+            height = window.innerHeight;
+            width = height / aspectRatio;
+        }
+
+        container.style.width = `${width}px`;
+        container.style.height = `${height}px`;
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
+
+        // Logical size remains fixed for game logic
+        canvas.width = GAME_WIDTH;
+        canvas.height = GAME_HEIGHT;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
     function spawnPlatforms() {
         while (platforms.length < platformCount) {
             const highestY = platforms.length ? Math.min(...platforms.map(p => p.y)) : 260;
             const isMoving = Math.random() < 0.3 * difficultyFactor;
             const isBreakable = Math.random() < 0.2 * difficultyFactor;
             let platform = {
-                x: Math.random() * (canvas.width - 100),
+                x: Math.random() * (GAME_WIDTH - 100),
                 y: highestY - 60 - Math.random() * 40,
                 width: 100, height: 20,
                 speed: isMoving ? (Math.random() > 0.5 ? 2 : -2) * (difficultyFactor * 0.5) : 0,
@@ -85,8 +109,8 @@ window.onload = function() {
         if (spawnChance) {
             const direction = Math.random() < 0.5 ? 1 : -1;
             const bee = {
-                x: direction === 1 ? -20 : canvas.width + 20,
-                y: Math.random() * (canvas.height - 100) + 50,
+                x: direction === 1 ? -20 : GAME_WIDTH + 20,
+                y: Math.random() * (GAME_HEIGHT - 100) + 50,
                 width: 20, height: 20,
                 speed: direction * (3 + difficultyFactor)
             };
@@ -139,9 +163,9 @@ window.onload = function() {
         player.x += player.speedX;
 
         if (player.x < 0) player.x = 0;
-        if (player.x > canvas.width - player.width) player.x = canvas.width - player.width;
+        if (player.x > GAME_WIDTH - player.width) player.x = GAME_WIDTH - player.width;
 
-        if (player.y < canvas.height / 2) {
+        if (player.y < GAME_HEIGHT / 2) {
             const scrollSpeed = player.dy < 0 ? -player.dy : 2;
             platforms.forEach(platform => platform.y += scrollSpeed);
             bees.forEach(bee => bee.y += scrollSpeed);
@@ -156,12 +180,12 @@ window.onload = function() {
                     player.x += platform.speed;
                 }
                 if (platform.x < 0) platform.speed = Math.abs(platform.speed);
-                if (platform.x + platform.width > canvas.width) platform.speed = -Math.abs(platform.speed);
+                if (platform.x + platform.width > GAME_WIDTH) platform.speed = -Math.abs(platform.speed);
             }
         });
 
         bees.forEach(bee => bee.x += bee.speed);
-        bees = bees.filter(bee => bee.x + bee.width > 0 && bee.x < canvas.width);
+        bees = bees.filter(bee => bee.x + bee.width > 0 && bee.x < GAME_WIDTH);
 
         beeSpawnTimer++;
         if (beeSpawnTimer > 30) {
@@ -169,7 +193,7 @@ window.onload = function() {
             beeSpawnTimer = 0;
         }
 
-        platforms = platforms.filter(p => p.y < canvas.height + 20);
+        platforms = platforms.filter(p => p.y < GAME_HEIGHT + 20);
         spawnPlatforms();
 
         player.onPlatform = false;
@@ -206,8 +230,8 @@ window.onload = function() {
             }
         });
 
-        if (player.y + player.height > canvas.height) {
-            player.y = canvas.height - player.height;
+        if (player.y + player.height > GAME_HEIGHT) {
+            player.y = GAME_HEIGHT - player.height;
             player.dy = 0;
             player.isJumping = false;
             if (player.hasStarted && !player.onPlatform) {
@@ -224,7 +248,7 @@ window.onload = function() {
     }
 
     function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
         drawPlayer();
         drawPlatforms();
         drawBees();
