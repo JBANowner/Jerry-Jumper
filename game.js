@@ -12,33 +12,21 @@ window.onload = function() {
     scoreDisplay.style.color = 'green';
     scoreDisplay.style.fontFamily = 'Arial, sans-serif';
 
-    // Load background music with full URL
+    // Load background music
     const backgroundMusic = new Audio('https://jbanowner.github.io/Jerry-Jumper/Retro_Game_Arcade.mp3');
     backgroundMusic.loop = true;
     backgroundMusic.volume = 0.5;
-    console.log('Background music loaded:', backgroundMusic.src);
     let musicStarted = false;
 
     // Load images
     const playerHead = new Image();
     playerHead.src = 'playerHead.png';
-    playerHead.onload = () => console.log('Player head loaded');
-    playerHead.onerror = () => console.error('Failed to load playerHead.png');
-
     const platformFace = new Image();
     platformFace.src = 'platformFace.png';
-    platformFace.onload = () => console.log('Platform face loaded');
-    platformFace.onerror = () => console.error('Failed to load platformFace.png');
-
     const breakableFace = new Image();
     breakableFace.src = 'breakableFace.png';
-    breakableFace.onload = () => console.log('Breakable face loaded');
-    breakableFace.onerror = () => console.error('Failed to load breakableFace.png');
-
     const beeImage = new Image();
     beeImage.src = 'bee.png';
-    beeImage.onload = () => console.log('Bee image loaded');
-    beeImage.onerror = () => console.error('Failed to load bee.png');
 
     const player = {
         x: 200, y: 560, width: 40, height: 40, dy: 0, gravity: 0.8, jumpPower: -20,
@@ -61,6 +49,61 @@ window.onload = function() {
     let difficultyFactor = 1;
 
     let keys = { left: false, right: false };
+
+    // Leaderboard class
+    class Leaderboard {
+        constructor() {
+            this.scores = JSON.parse(localStorage.getItem('jerryJumperLeaderboard')) || [];
+            this.render();
+        }
+
+        addScore(score) {
+            const position = this.scores.findIndex(s => score > s.score);
+            if (position === -1 && this.scores.length >= 25) return; // Not in top 25
+            
+            if (this.scores.length < 25 || position >= 0) {
+                if (position === -1 || position <= 9) { // Top 10 or new entry
+                    this.showInitialsInput(score);
+                } else {
+                    this.scores.push({ initials: 'AAA', score });
+                    this.saveAndUpdate();
+                }
+            }
+        }
+
+        showInitialsInput(score) {
+            document.getElementById('initialsInput').style.display = 'block';
+            window.currentScore = score;
+        }
+
+        saveAndUpdate() {
+            this.scores.sort((a, b) => b.score - a.score);
+            this.scores = this.scores.slice(0, 25);
+            localStorage.setItem('jerryJumperLeaderboard', JSON.stringify(this.scores));
+            this.render();
+        }
+
+        render() {
+            const scoreList = document.getElementById('scoreList');
+            scoreList.innerHTML = this.scores
+                .map((entry, i) => `<div>${i + 1}. ${entry.initials} - ${entry.score}</div>`)
+                .join('');
+        }
+    }
+
+    const leaderboard = new Leaderboard();
+
+    function submitScore() {
+        const initials = document.getElementById('playerInitials').value.toUpperCase().slice(0, 3);
+        if (initials.length === 3) {
+            leaderboard.scores.push({ initials, score: window.currentScore });
+            leaderboard.saveAndUpdate();
+            document.getElementById('initialsInput').style.display = 'none';
+            document.getElementById('playerInitials').value = '';
+        }
+    }
+
+    window.submitScore = submitScore; // Make it globally accessible for the button
 
     function spawnPlatforms() {
         while (platforms.length < platformCount) {
@@ -202,6 +245,7 @@ window.onload = function() {
                 player.y < bee.y + bee.height &&
                 player.y + player.height > bee.y) {
                 alert(`Game Over! Hit by a bee! Level: ${level}, Score: ${score}`);
+                leaderboard.addScore(score);
                 reset();
             }
         });
@@ -212,6 +256,7 @@ window.onload = function() {
             player.isJumping = false;
             if (player.hasStarted && !player.onPlatform) {
                 alert(`Game Over! Level: ${level}, Score: ${score}`);
+                leaderboard.addScore(score);
                 reset();
             }
         }
@@ -260,7 +305,6 @@ window.onload = function() {
         if (['ArrowUp', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
             e.preventDefault();
         }
-        console.log(`Key pressed: ${e.key}`);
         if (e.key === 'ArrowLeft') keys.left = true;
         if (e.key === 'ArrowRight') keys.right = true;
         if (e.key === 'ArrowUp' && !player.isJumping) {
@@ -270,7 +314,6 @@ window.onload = function() {
             player.hasStarted = true;
             player.currentPlatform = null;
             if (!musicStarted) {
-                console.log('Attempting to play music');
                 backgroundMusic.play().catch(error => console.error('Error playing music:', error));
                 musicStarted = true;
             }
