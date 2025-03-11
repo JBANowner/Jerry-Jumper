@@ -3,29 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Jerry Jumper</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #87CEEB;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div style="display: flex; justify-content: center; padding: 10px;">
-        <div style="position: relative;">
-            <canvas id="gameCanvas" width="400" height="650" style="border: 1px solid black;"></canvas>
-            <div id="scoreDisplay" style="position: absolute; top: 10px; left: 10px;"></div>
-        </div>
-        <div id="leaderboard" style="width: 200px; padding: 10px; background: #f0f0f0; margin-left: 10px;">
-            <h3>Top 25 Scores</h3>
-            <div id="scoreList"></div>
-            <div id="initialsInput" style="display: none; margin-top: 10px;">
-                <input type="text" id="playerInitials" maxlength="3" placeholder="Enter 3 initials">
-                <button onclick="submitScore()">Submit</button>
-            </div>
-        </div>
-    </div>
+    <canvas id="gameCanvas" width="400" height="650"></canvas>
+    <div id="scoreDisplay"></div>
     <script src="game.js"></script>
 </body>
 </html>
