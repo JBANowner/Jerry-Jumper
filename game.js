@@ -16,7 +16,9 @@ window.onload = function() {
     const backgroundMusic = new Audio('https://jbanowner.github.io/Jerry-Jumper/Retro_Game_Arcade.mp3');
     backgroundMusic.loop = true;
     backgroundMusic.volume = 0.5;
-    console.log('Background music loaded:', backgroundMusic.src);
+    backgroundMusic.oncanplaythrough = () => console.log('Music ready to play');
+    backgroundMusic.onerror = () => console.error('Failed to load music:', backgroundMusic.src);
+    console.log('Background music initialized:', backgroundMusic.src);
     let musicStarted = false;
 
     // Load images
@@ -271,8 +273,12 @@ window.onload = function() {
             player.currentPlatform = null;
             if (!musicStarted) {
                 console.log('Attempting to play music');
-                backgroundMusic.play().catch(error => console.error('Error playing music:', error));
-                musicStarted = true;
+                backgroundMusic.play()
+                    .then(() => {
+                        console.log('Music started successfully');
+                        musicStarted = true;
+                    })
+                    .catch(error => console.error('Error playing music:', error));
             }
         }
     });
