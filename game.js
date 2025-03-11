@@ -1,6 +1,5 @@
 "use strict";
 window.onload = function() {
-    console.log('Window loaded');
     const canvas = document.getElementById('gameCanvas');
     if (!canvas) { console.error('Canvas element not found'); return; }
     const ctx = canvas.getContext('2d');
@@ -8,14 +7,12 @@ window.onload = function() {
     const scoreDisplay = document.getElementById('scoreDisplay');
     if (!scoreDisplay) { console.error('Score display element not found'); return; }
 
-    console.log('Canvas and context initialized');
-
     // Style score display
     scoreDisplay.style.fontSize = '20px';
     scoreDisplay.style.color = 'green';
     scoreDisplay.style.fontFamily = 'Arial, sans-serif';
 
-    // Load background music
+    // Load background music with full URL
     const backgroundMusic = new Audio('https://jbanowner.github.io/Jerry-Jumper/Retro_Game_Arcade.mp3');
     backgroundMusic.loop = true;
     backgroundMusic.volume = 0.5;
@@ -64,61 +61,6 @@ window.onload = function() {
     let difficultyFactor = 1;
 
     let keys = { left: false, right: false };
-
-    // Leaderboard class
-    class Leaderboard {
-        constructor() {
-            this.scores = JSON.parse(localStorage.getItem('jerryJumperLeaderboard')) || [];
-            this.render();
-        }
-
-        addScore(score) {
-            const position = this.scores.findIndex(s => score > s.score);
-            if (position === -1 && this.scores.length >= 25) return; // Not in top 25
-            
-            if (this.scores.length < 25 || position >= 0) {
-                if (position === -1 || position <= 9) { // Top 10 or new entry
-                    this.showInitialsInput(score);
-                } else {
-                    this.scores.push({ initials: 'AAA', score });
-                    this.saveAndUpdate();
-                }
-            }
-        }
-
-        showInitialsInput(score) {
-            document.getElementById('initialsInput').style.display = 'block';
-            window.currentScore = score;
-        }
-
-        saveAndUpdate() {
-            this.scores.sort((a, b) => b.score - a.score);
-            this.scores = this.scores.slice(0, 25);
-            localStorage.setItem('jerryJumperLeaderboard', JSON.stringify(this.scores));
-            this.render();
-        }
-
-        render() {
-            const scoreList = document.getElementById('scoreList');
-            scoreList.innerHTML = this.scores
-                .map((entry, i) => `<div>${i + 1}. ${entry.initials} - ${entry.score}</div>`)
-                .join('');
-        }
-    }
-
-    const leaderboard = new Leaderboard();
-
-    function submitScore() {
-        const initials = document.getElementById('playerInitials').value.toUpperCase().slice(0, 3);
-        if (initials.length === 3) {
-            leaderboard.scores.push({ initials, score: window.currentScore });
-            leaderboard.saveAndUpdate();
-            document.getElementById('initialsInput').style.display = 'none';
-            document.getElementById('playerInitials').value = '';
-        }
-    }
-
-    window.submitScore = submitScore; // Make it globally accessible for the button
 
     function spawnPlatforms() {
         while (platforms.length < platformCount) {
@@ -260,7 +202,6 @@ window.onload = function() {
                 player.y < bee.y + bee.height &&
                 player.y + player.height > bee.y) {
                 alert(`Game Over! Hit by a bee! Level: ${level}, Score: ${score}`);
-                leaderboard.addScore(score);
                 reset();
             }
         });
@@ -271,7 +212,6 @@ window.onload = function() {
             player.isJumping = false;
             if (player.hasStarted && !player.onPlatform) {
                 alert(`Game Over! Level: ${level}, Score: ${score}`);
-                leaderboard.addScore(score);
                 reset();
             }
         }
@@ -343,13 +283,11 @@ window.onload = function() {
     });
 
     function gameLoop() {
-        console.log('Game loop running');
         update();
         draw();
         requestAnimationFrame(gameLoop);
     }
 
-    console.log('Starting game loop');
     spawnPlatforms();
     gameLoop();
 };
