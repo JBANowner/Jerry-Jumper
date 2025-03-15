@@ -1,11 +1,14 @@
 body {
     display: flex;
-    flex-direction: column; /* Stack items vertically */
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
     background-color: #87CEEB; /* Sky blue background */
+}
+
+#game-area {
+    position: relative; /* Allow absolute positioning of scoreDisplay */
 }
 
 canvas {
@@ -23,9 +26,15 @@ canvas {
 }
 
 #scoreDisplay {
-    margin-bottom: 10px; /* Space between score and canvas */
+    position: absolute;
+    top: 10px;
+    left: 10px;
     font-size: 20px;
     color: green;
     font-family: 'Arial, sans-serif';
-    text-align: center;
+    text-align: left;
+    white-space: nowrap; /* Prevent wrapping */
+    background: rgba(0, 128, 0, 0.7); /* Semi-transparent green background for readability */
+    padding: 5px;
+    border-radius: 3px;
 }
