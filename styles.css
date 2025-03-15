@@ -1,76 +1,9 @@
 body {
-    margin: 0;
-    background-color: #87CEEB; /* Sky blue background */
     display: flex;
+    flex-direction: column; /* Stack items vertically */
     justify-content: center;
     align-items: center;
-    min-height: 100vh; /* Ensure body takes full height */
-}
-
-#game-container {
-    display: flex;
-    align-items: flex-start;
-    background-color: #87CEEB; /* Match body to avoid edges */
-    padding: 10px; /* Reduced padding */
-    border: 2px solid #333; /* Optional: Add a border to frame the game */
-    border-radius: 5px;
-    max-width: 770px; /* Updated: 500px canvas + 250px leaderboard + 20px margin */
-}
-
-#game-area {
-    position: relative;
-    width: 500px; /* Match new canvas width */
-    height: 650px; /* Match canvas height */
-    overflow: visible; /* Ensure content isn't clipped */
-}
-
-canvas {
-    border: 1px solid black;
-    background-color: #ffc107; /* Yellow base for honeycomb */
-    background-image: 
-        linear-gradient(30deg, #e69138 12%, transparent 12.5%, transparent 87%, #e69138 87.5%),
-        linear-gradient(150deg, #e69138 12%, transparent 12.5%, transparent 87%, #e69138 87.5%),
-        linear-gradient(30deg, #e69138 12%, transparent 12.5%, transparent 87%, #e69138 87.5%),
-        linear-gradient(150deg, #e69138 12%, transparent 12.5%, transparent 87%, #e69138 87.5%),
-        linear-gradient(60deg, #e6913833 25%, transparent 25.5%, transparent 75%, #e6913833 75%),
-        linear-gradient(60deg, #e6913833 25%, transparent 25.5%, transparent 75%, #e6913833 75%);
-    background-size: 40px 70px;
-    background-position: 0 0, 0 0, 20px 35px, 20px 35px, 0 0, 20px 35px;
-    width: 500px; /* Updated to match new canvas width */
-    height: 650px;
-    display: block; /* Prevent any inline spacing issues */
-}
-
-#scoreDisplay {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    font-size: 20px;
-    color: green;
-    font-family: 'Arial, sans-serif';
-    text-align: left;
-    white-space: nowrap;
-    background: rgba(0, 128, 0, 0.7); /* Semi-transparent green for theme */
-    padding: 5px;
-    border-radius: 3px;
-}
-
-#game-container #leaderboard {
-    width: 250px; /* Reduced from 300px */
-    margin-left: 20px;
-    padding: 10px;
-    height: 650px; /* Match canvas height */
-    background: #d3d3d3; /* Light gray background */
-    border: 1px solid #ccc;
-    font-family: 'Arial, sans-serif';
-    overflow-y: auto; /* Add scroll if more than 20 entries */
-}
-
-#leaderboard h2 {
-    margin: 0 0 10px 0;
-    font-size: 20px;
-}
-
-#leaderboard p {
-    margin: 5px 0;
+    height: 100vh;
+    margin: 0;
+    background-color: #87CEEB; /* Sky blue background */
 }
