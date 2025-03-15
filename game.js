@@ -48,11 +48,11 @@ window.onload = function() {
     };
 
     let platforms = [
-        { x: 200, y: 500, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
-        { x: 150, y: 440, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
-        { x: 250, y: 380, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
-        { x: 170, y: 320, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
-        { x: 230, y: 260, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 }
+        { x: 150, y: 500, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
+        { x: 100, y: 440, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
+        { x: 200, y: 380, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
+        { x: 120, y: 320, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
+        { x: 180, y: 260, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 }
     ];
 
     let bees = [];
@@ -64,34 +64,19 @@ window.onload = function() {
 
     let keys = { left: false, right: false };
 
-    // Leaderboard with weekly reset
-    let leaderboardData = JSON.parse(localStorage.getItem("jerryJumperLeaderboard")) || { lastReset: 0, scores: [] };
-    let leaderboard = leaderboardData.scores || []; // Ensure scores is an array
-    const WEEK_IN_MS = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
-    const now = Date.now();
-    if (now - leaderboardData.lastReset > WEEK_IN_MS) {
-        leaderboard = [];
-        leaderboardData = { lastReset: now, scores: leaderboard };
-        localStorage.setItem("jerryJumperLeaderboard", JSON.stringify(leaderboardData));
-    }
-    console.log("Initial leaderboard:", leaderboard); // Debug
-
     function spawnPlatforms() {
         while (platforms.length < platformCount) {
             const highestY = platforms.length ? Math.min(...platforms.map(p => p.y)) : 260;
             const isMoving = Math.random() < 0.3 * difficultyFactor;
             const isBreakable = Math.random() < 0.2 * difficultyFactor;
             let platform = {
-                x: Math.random() * (canvas.width - 100), // Adjusted for 500px width
+                x: Math.random() * (canvas.width - 100),
                 y: highestY - 60 - Math.random() * 40,
                 width: 100, height: 20,
                 speed: isMoving ? (Math.random() > 0.5 ? 2 : -2) * (difficultyFactor * 0.5) : 0,
                 breakable: isBreakable,
                 breakTimer: isBreakable ? 60 : 0
             };
-            // Ensure platform stays within bounds
-            if (platform.x < 0) platform.x = 0;
-            if (platform.x > canvas.width - platform.width) platform.x = canvas.width - platform.width;
             platforms.push(platform);
         }
     }
@@ -144,40 +129,6 @@ window.onload = function() {
         });
     }
 
-    function updateLeaderboard(finalScore) {
-        if (finalScore > 0) {
-            let rank = leaderboard.findIndex(entry => finalScore > entry.score);
-            if (rank === -1) rank = leaderboard.length;
-            if (rank < 5) {
-                let initials = prompt("Top 5 score! Enter your initials (3 letters):")?.slice(0, 3).toUpperCase() || "???";
-                leaderboard.push({ initials, score: finalScore });
-            } else if (rank < 20) {
-                leaderboard.push({ initials: "---", score: finalScore });
-            }
-            leaderboard.sort((a, b) => b.score - a.score);
-            leaderboard = leaderboard.slice(0, 20);
-            leaderboardData.scores = leaderboard;
-            localStorage.setItem("jerryJumperLeaderboard", JSON.stringify(leaderboardData));
-            console.log("Updated leaderboard:", leaderboard); // Debug
-            displayLeaderboard();
-        }
-    }
-
-    function displayLeaderboard() {
-        const leaderboardDiv = document.getElementById("leaderboard");
-        if (!leaderboardDiv) { console.error('Leaderboard div not found'); return; }
-        leaderboardDiv.innerHTML = "<h2>Leaderboard</h2>";
-        if (!Array.isArray(leaderboard) || leaderboard.length === 0) {
-            leaderboardDiv.innerHTML += "<p>No scores yet!</p>";
-        } else {
-            leaderboard.forEach((entry, index) => {
-                if (index < 20) { // Explicitly limit to top 20
-                    leaderboardDiv.innerHTML += `<p>${index + 1}. ${entry.initials}: ${entry.score}</p>`;
-                }
-            });
-        }
-    }
-
     function update() {
         if (!player.onPlatform) {
             player.dy += player.gravity;
@@ -189,7 +140,6 @@ window.onload = function() {
         if (keys.right) player.speedX = 10;
         player.x += player.speedX;
 
-        // Ensure player stays within canvas bounds (now 500px wide)
         if (player.x < 0) player.x = 0;
         if (player.x > canvas.width - player.width) player.x = canvas.width - player.width;
 
@@ -207,9 +157,8 @@ window.onload = function() {
                 if (player.onPlatform && player.currentPlatform === platform) {
                     player.x += platform.speed;
                 }
-                // Wrap around edges
-                if (platform.x + platform.width < 0) platform.x = canvas.width;
-                if (platform.x > canvas.width) platform.x = -platform.width;
+                if (platform.x < 0) platform.speed = Math.abs(platform.speed);
+                if (platform.x + platform.width > canvas.width) platform.speed = -Math.abs(platform.speed);
             }
         });
 
@@ -255,7 +204,6 @@ window.onload = function() {
                 player.y < bee.y + bee.height &&
                 player.y + player.height > bee.y) {
                 alert(`Game Over! Hit by a bee! Level: ${level}, Score: ${score}`);
-                updateLeaderboard(score);
                 reset();
             }
         });
@@ -266,7 +214,6 @@ window.onload = function() {
             player.isJumping = false;
             if (player.hasStarted && !player.onPlatform) {
                 alert(`Game Over! Level: ${level}, Score: ${score}`);
-                updateLeaderboard(score);
                 reset();
             }
         }
@@ -297,11 +244,11 @@ window.onload = function() {
         keys.left = false;
         keys.right = false;
         platforms = [
-            { x: 200, y: 500, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
-            { x: 150, y: 440, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
-            { x: 250, y: 380, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
-            { x: 170, y: 320, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
-            { x: 230, y: 260, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 }
+            { x: 150, y: 500, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
+            { x: 100, y: 440, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
+            { x: 200, y: 380, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
+            { x: 120, y: 320, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
+            { x: 180, y: 260, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 }
         ];
         bees = [];
         score = 0;
@@ -348,6 +295,5 @@ window.onload = function() {
     }
 
     spawnPlatforms();
-    displayLeaderboard(); // Show leaderboard on load
     gameLoop();
 };
