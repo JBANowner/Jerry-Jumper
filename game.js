@@ -187,6 +187,7 @@ window.onload = function() {
                 player.x + player.width > bee.x &&
                 player.y < bee.y + bee.height &&
                 player.y + player.height > bee.y) {
+                console.log('Game Over triggered by bee collision'); // Debug
                 alert(`Why you fall like that? Hit by a bee! Score: ${score}`);
                 reset();
             }
@@ -197,6 +198,7 @@ window.onload = function() {
             player.dy = 0;
             player.isJumping = false;
             if (player.hasStarted && !player.onPlatform) {
+                console.log('Game Over triggered by falling off'); // Debug
                 alert(`Why you fall like that? Fell off! Score: ${score}`);
                 reset();
             }
