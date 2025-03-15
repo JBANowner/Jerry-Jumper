@@ -7,40 +7,24 @@ window.onload = function() {
     const scoreDisplay = document.getElementById('scoreDisplay');
     if (!scoreDisplay) { console.error('Score display element not found'); return; }
 
-    // Style score display
-    scoreDisplay.style.fontSize = '20px';
-    scoreDisplay.style.color = 'green';
-    scoreDisplay.style.fontFamily = 'Arial, sans-serif';
-
     // Load background music with full URL
     const backgroundMusic = new Audio('https://jbanowner.github.io/Jerry-Jumper/Retro_Game_Arcade.mp3');
     backgroundMusic.loop = true;
     backgroundMusic.volume = 0.5;
-    backgroundMusic.oncanplaythrough = () => console.log('Music ready to play');
-    backgroundMusic.onerror = () => console.error('Failed to load music:', backgroundMusic.src);
-    console.log('Background music initialized:', backgroundMusic.src);
     let musicStarted = false;
 
     // Load images
     const playerHead = new Image();
     playerHead.src = 'playerHead.png';
-    playerHead.onload = () => console.log('Player head loaded');
-    playerHead.onerror = () => console.error('Failed to load playerHead.png');
 
     const platformFace = new Image();
     platformFace.src = 'platformFace.png';
-    platformFace.onload = () => console.log('Platform face loaded');
-    platformFace.onerror = () => console.error('Failed to load platformFace.png');
 
     const breakableFace = new Image();
     breakableFace.src = 'breakableFace.png';
-    breakableFace.onload = () => console.log('Breakable face loaded');
-    breakableFace.onerror = () => console.error('Failed to load breakableFace.png');
 
     const beeImage = new Image();
     beeImage.src = 'bee.png';
-    beeImage.onload = () => console.log('Bee image loaded');
-    beeImage.onerror = () => console.error('Failed to load bee.png');
 
     const player = {
         x: 200, y: 560, width: 40, height: 40, dy: 0, gravity: 0.8, jumpPower: -20,
@@ -262,7 +246,6 @@ window.onload = function() {
         if (['ArrowUp', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
             e.preventDefault();
         }
-        console.log(`Key pressed: ${e.key}`);
         if (e.key === 'ArrowLeft') keys.left = true;
         if (e.key === 'ArrowRight') keys.right = true;
         if (e.key === 'ArrowUp' && !player.isJumping) {
@@ -272,10 +255,8 @@ window.onload = function() {
             player.hasStarted = true;
             player.currentPlatform = null;
             if (!musicStarted) {
-                console.log('Attempting to play music');
                 backgroundMusic.play()
                     .then(() => {
-                        console.log('Music started successfully');
                         musicStarted = true;
                     })
                     .catch(error => console.error('Error playing music:', error));
