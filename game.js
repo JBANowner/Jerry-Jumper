@@ -66,7 +66,7 @@ window.onload = function() {
 
     // Leaderboard with weekly reset
     let leaderboardData = JSON.parse(localStorage.getItem("jerryJumperLeaderboard")) || { lastReset: 0, scores: [] };
-    let leaderboard = leaderboardData.scores;
+    let leaderboard = leaderboardData.scores || []; // Ensure scores is an array
     const WEEK_IN_MS = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
     const now = Date.now();
     if (now - leaderboardData.lastReset > WEEK_IN_MS) {
@@ -74,6 +74,7 @@ window.onload = function() {
         leaderboardData = { lastReset: now, scores: leaderboard };
         localStorage.setItem("jerryJumperLeaderboard", JSON.stringify(leaderboardData));
     }
+    console.log("Initial leaderboard:", leaderboard); // Debug
 
     function spawnPlatforms() {
         while (platforms.length < platformCount) {
@@ -154,6 +155,7 @@ window.onload = function() {
             leaderboard = leaderboard.slice(0, 20);
             leaderboardData.scores = leaderboard;
             localStorage.setItem("jerryJumperLeaderboard", JSON.stringify(leaderboardData));
+            console.log("Updated leaderboard:", leaderboard); // Debug
             displayLeaderboard();
         }
     }
@@ -162,7 +164,7 @@ window.onload = function() {
         const leaderboardDiv = document.getElementById("leaderboard");
         if (!leaderboardDiv) { console.error('Leaderboard div not found'); return; }
         leaderboardDiv.innerHTML = "<h2>Leaderboard</h2>";
-        if (leaderboard.length === 0) {
+        if (!Array.isArray(leaderboard) || leaderboard.length === 0) {
             leaderboardDiv.innerHTML += "<p>No scores yet!</p>";
         } else {
             leaderboard.forEach((entry, index) => {
