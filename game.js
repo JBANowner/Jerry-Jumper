@@ -76,19 +76,23 @@ window.onload = function() {
     }
     console.log("Initial leaderboard:", leaderboard); // Debug
 
+    // [Snippet Location 1: Updated spawnPlatforms function]
     function spawnPlatforms() {
         while (platforms.length < platformCount) {
             const highestY = platforms.length ? Math.min(...platforms.map(p => p.y)) : 260;
             const isMoving = Math.random() < 0.3 * difficultyFactor;
             const isBreakable = Math.random() < 0.2 * difficultyFactor;
             let platform = {
-                x: Math.random() * (canvas.width - 100),
+                x: Math.random() * (canvas.width - 100), // Ensure x is between 0 and 300 (canvas.width - platform.width)
                 y: highestY - 60 - Math.random() * 40,
                 width: 100, height: 20,
                 speed: isMoving ? (Math.random() > 0.5 ? 2 : -2) * (difficultyFactor * 0.5) : 0,
                 breakable: isBreakable,
                 breakTimer: isBreakable ? 60 : 0
             };
+            // Ensure platform stays within bounds
+            if (platform.x < 0) platform.x = 0;
+            if (platform.x > canvas.width - platform.width) platform.x = canvas.width - platform.width;
             platforms.push(platform);
         }
     }
@@ -168,11 +172,14 @@ window.onload = function() {
             leaderboardDiv.innerHTML += "<p>No scores yet!</p>";
         } else {
             leaderboard.forEach((entry, index) => {
-                leaderboardDiv.innerHTML += `<p>${index + 1}. ${entry.initials}: ${entry.score}</p>`;
+                if (index < 20) { // Explicitly limit to top 20
+                    leaderboardDiv.innerHTML += `<p>${index + 1}. ${entry.initials}: ${entry.score}</p>`;
+                }
             });
         }
     }
 
+    // [Snippet Location 2: Updated update function]
     function update() {
         if (!player.onPlatform) {
             player.dy += player.gravity;
@@ -184,6 +191,7 @@ window.onload = function() {
         if (keys.right) player.speedX = 10;
         player.x += player.speedX;
 
+        // Ensure player stays within canvas bounds
         if (player.x < 0) player.x = 0;
         if (player.x > canvas.width - player.width) player.x = canvas.width - player.width;
 
@@ -201,8 +209,9 @@ window.onload = function() {
                 if (player.onPlatform && player.currentPlatform === platform) {
                     player.x += platform.speed;
                 }
-                if (platform.x < 0) platform.speed = Math.abs(platform.speed);
-                if (platform.x + platform.width > canvas.width) platform.speed = -Math.abs(platform.speed);
+                // Wrap around edges
+                if (platform.x + platform.width < 0) platform.x = canvas.width;
+                if (platform.x > canvas.width) platform.x = -platform.width;
             }
         });
 
