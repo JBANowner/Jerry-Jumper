@@ -1,21 +1,23 @@
 body {
-    display: flex;
-    flex-direction: column; /* Stack items vertically */
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
     margin: 0;
     background-color: #87CEEB; /* Sky blue background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Ensure body takes full height */
 }
 
 #game-container {
     display: flex;
-    justify-content: center;
     align-items: flex-start;
+    background-color: #87CEEB; /* Match body to avoid blue edges */
+    padding: 20px; /* Add some padding for breathing room */
 }
 
 #game-area {
     position: relative;
+    width: 400px; /* Match canvas width */
+    height: 650px; /* Match canvas height */
 }
 
 canvas {
@@ -30,10 +32,12 @@ canvas {
         linear-gradient(60deg, #e6913833 25%, transparent 25.5%, transparent 75%, #e6913833 75%);
     background-size: 40px 70px;
     background-position: 0 0, 0 0, 20px 35px, 20px 35px, 0 0, 20px 35px;
+    width: 100%; /* Ensure it fills game-area */
+    height: 100%;
 }
 
 #scoreDisplay {
-    position: absolute; /* Changed to absolute to stay inside game-area */
+    position: absolute;
     top: 10px;
     left: 10px;
     font-size: 20px;
