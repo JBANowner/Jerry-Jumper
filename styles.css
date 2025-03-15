@@ -60,7 +60,7 @@ canvas {
     margin-left: 20px;
     padding: 10px;
     height: 650px; /* Match canvas height */
-    background: #d3d3d3; /* Light gray background */
+    background: #d3d3d3 !important; /* Light gray background with higher specificity */
     border: 1px solid #ccc;
     font-family: 'Arial, sans-serif';
     overflow-y: auto; /* Add scroll if more than 20 entries */
