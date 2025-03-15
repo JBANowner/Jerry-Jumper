@@ -48,11 +48,11 @@ window.onload = function() {
     };
 
     let platforms = [
-        { x: 150, y: 500, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
-        { x: 100, y: 440, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
-        { x: 200, y: 380, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
-        { x: 120, y: 320, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
-        { x: 180, y: 260, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 }
+        { x: 250, y: 500, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 }, // Adjusted x for wider canvas
+        { x: 200, y: 440, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
+        { x: 300, y: 380, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
+        { x: 220, y: 320, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
+        { x: 280, y: 260, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 }
     ];
 
     let bees = [];
@@ -76,14 +76,13 @@ window.onload = function() {
     }
     console.log("Initial leaderboard:", leaderboard); // Debug
 
-    // [Snippet Location 1: Updated spawnPlatforms function]
     function spawnPlatforms() {
         while (platforms.length < platformCount) {
             const highestY = platforms.length ? Math.min(...platforms.map(p => p.y)) : 260;
             const isMoving = Math.random() < 0.3 * difficultyFactor;
             const isBreakable = Math.random() < 0.2 * difficultyFactor;
             let platform = {
-                x: Math.random() * (canvas.width - 100), // Ensure x is between 0 and 300 (canvas.width - platform.width)
+                x: Math.random() * (canvas.width - 100), // Adjusted for 600px width
                 y: highestY - 60 - Math.random() * 40,
                 width: 100, height: 20,
                 speed: isMoving ? (Math.random() > 0.5 ? 2 : -2) * (difficultyFactor * 0.5) : 0,
@@ -179,7 +178,6 @@ window.onload = function() {
         }
     }
 
-    // [Snippet Location 2: Updated update function]
     function update() {
         if (!player.onPlatform) {
             player.dy += player.gravity;
@@ -191,7 +189,7 @@ window.onload = function() {
         if (keys.right) player.speedX = 10;
         player.x += player.speedX;
 
-        // Ensure player stays within canvas bounds
+        // Ensure player stays within canvas bounds (now 600px wide)
         if (player.x < 0) player.x = 0;
         if (player.x > canvas.width - player.width) player.x = canvas.width - player.width;
 
@@ -299,11 +297,11 @@ window.onload = function() {
         keys.left = false;
         keys.right = false;
         platforms = [
-            { x: 150, y: 500, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
-            { x: 100, y: 440, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
-            { x: 200, y: 380, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
-            { x: 120, y: 320, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
-            { x: 180, y: 260, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 }
+            { x: 250, y: 500, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
+            { x: 200, y: 440, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
+            { x: 300, y: 380, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
+            { x: 220, y: 320, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 },
+            { x: 280, y: 260, width: 100, height: 20, speed: 0, breakable: false, breakTimer: 0 }
         ];
         bees = [];
         score = 0;
