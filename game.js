@@ -64,6 +64,9 @@ window.onload = function() {
 
     let keys = { left: false, right: false };
 
+    // Leaderboard initialization
+    let leaderboard = JSON.parse(localStorage.getItem("jerryJumperLeaderboard")) || [];
+
     function spawnPlatforms() {
         while (platforms.length < platformCount) {
             const highestY = platforms.length ? Math.min(...platforms.map(p => p.y)) : 260;
@@ -126,6 +129,34 @@ window.onload = function() {
                 ctx.fillStyle = '#000000';
                 ctx.fillRect(bee.x, bee.y, bee.width, bee.height);
             }
+        });
+    }
+
+    // Leaderboard update function
+    function updateLeaderboard(finalScore) {
+        if (finalScore > 0) { // Only update if the player has a meaningful score
+            let rank = leaderboard.findIndex(entry => finalScore > entry.score);
+            if (rank === -1) rank = leaderboard.length; // Append if lower than all
+            if (rank < 5) {
+                let initials = prompt("Top 5 score! Enter your initials (3 letters):")?.slice(0, 3).toUpperCase() || "???";
+                leaderboard.push({ initials, score: finalScore });
+            } else if (rank < 20) {
+                leaderboard.push({ initials: "---", score: finalScore });
+            }
+            leaderboard.sort((a, b) => b.score - a.score);
+            leaderboard = leaderboard.slice(0, 20);
+            localStorage.setItem("jerryJumperLeaderboard", JSON.stringify(leaderboard));
+            displayLeaderboard();
+        }
+    }
+
+    // Leaderboard display function
+    function displayLeaderboard() {
+        const leaderboardDiv = document.getElementById("leaderboard");
+        if (!leaderboardDiv) { console.error('Leaderboard div not found'); return; }
+        leaderboardDiv.innerHTML = "<h2>Leaderboard</h2>";
+        leaderboard.forEach((entry, index) => {
+            leaderboardDiv.innerHTML += `<p>${index + 1}. ${entry.initials}: ${entry.score}</p>`;
         });
     }
 
@@ -204,6 +235,7 @@ window.onload = function() {
                 player.y < bee.y + bee.height &&
                 player.y + player.height > bee.y) {
                 alert(`Game Over! Hit by a bee! Level: ${level}, Score: ${score}`);
+                updateLeaderboard(score); // Add score to leaderboard
                 reset();
             }
         });
@@ -214,6 +246,7 @@ window.onload = function() {
             player.isJumping = false;
             if (player.hasStarted && !player.onPlatform) {
                 alert(`Game Over! Level: ${level}, Score: ${score}`);
+                updateLeaderboard(score); // Add score to leaderboard
                 reset();
             }
         }
@@ -294,6 +327,8 @@ window.onload = function() {
         requestAnimationFrame(gameLoop);
     }
 
+    // Initial setup
     spawnPlatforms();
+    displayLeaderboard(); // Show leaderboard on load
     gameLoop();
 };
