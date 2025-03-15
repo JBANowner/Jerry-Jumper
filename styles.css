@@ -27,8 +27,8 @@ canvas {
 
 #scoreDisplay {
     position: absolute;
-    top: 10px;
-    left: 10px;
+    top: 10px; /* Position at top-left corner */
+    left: 10px; /* Position at top-left corner */
     font-size: 20px;
     color: green;
     font-family: 'Arial, sans-serif';
@@ -37,4 +37,5 @@ canvas {
     background: rgba(0, 128, 0, 0.7); /* Semi-transparent green background for readability */
     padding: 5px;
     border-radius: 3px;
+    z-index: 10; /* Ensure it stays above canvas content */
 }
