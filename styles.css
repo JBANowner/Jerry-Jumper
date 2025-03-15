@@ -18,6 +18,7 @@ body {
     position: relative;
     width: 400px; /* Match canvas width */
     height: 650px; /* Match canvas height */
+    overflow: visible; /* Ensure content isn't clipped */
 }
 
 canvas {
@@ -32,8 +33,9 @@ canvas {
         linear-gradient(60deg, #e6913833 25%, transparent 25.5%, transparent 75%, #e6913833 75%);
     background-size: 40px 70px;
     background-position: 0 0, 0 0, 20px 35px, 20px 35px, 0 0, 20px 35px;
-    width: 100%; /* Ensure it fills game-area */
-    height: 100%;
+    width: 400px; /* Explicitly set to match canvas dimensions */
+    height: 650px;
+    display: block; /* Prevent any inline spacing issues */
 }
 
 #scoreDisplay {
@@ -43,7 +45,11 @@ canvas {
     font-size: 20px;
     color: green;
     font-family: 'Arial, sans-serif';
-    text-align: center;
+    text-align: left; /* Ensure text isn't centered unnecessarily */
+    white-space: nowrap; /* Prevent text wrapping */
+    background: rgba(255, 255, 255, 0.7); /* Add a slight background for readability */
+    padding: 5px;
+    border-radius: 3px;
 }
 
 #leaderboard {
