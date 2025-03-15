@@ -1,10 +1,11 @@
 body {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start; /* Align at the top to allow space above */
     height: 100vh;
     margin: 0;
     background-color: #87CEEB; /* Sky blue background */
+    position: relative; /* For positioning */
 }
 
 #game-area {
@@ -27,12 +28,13 @@ canvas {
 
 #scoreDisplay {
     position: absolute;
-    top: 10px; /* Position at top-left corner */
-    left: 10px; /* Position at top-left corner */
+    top: -40px; /* Move above the canvas (adjust based on height needed) */
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Offset to center properly */
     font-size: 20px;
     color: green;
     font-family: 'Arial, sans-serif';
-    text-align: left;
+    text-align: center;
     white-space: nowrap; /* Prevent wrapping */
     background: rgba(0, 128, 0, 0.7); /* Semi-transparent green background for readability */
     padding: 5px;
