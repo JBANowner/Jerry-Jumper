@@ -14,12 +14,12 @@ body {
     padding: 10px; /* Reduced padding */
     border: 2px solid #333; /* Optional: Add a border to frame the game */
     border-radius: 5px;
-    max-width: 620px; /* Canvas (400px) + Leaderboard (200px) + Margin (20px) */
+    max-width: 920px; /* Updated: 600px canvas + 300px leaderboard + 20px margin */
 }
 
 #game-area {
     position: relative;
-    width: 400px; /* Match canvas width */
+    width: 600px; /* Match new canvas width */
     height: 650px; /* Match canvas height */
     overflow: visible; /* Ensure content isn't clipped */
 }
@@ -36,7 +36,7 @@ canvas {
         linear-gradient(60deg, #e6913833 25%, transparent 25.5%, transparent 75%, #e6913833 75%);
     background-size: 40px 70px;
     background-position: 0 0, 0 0, 20px 35px, 20px 35px, 0 0, 20px 35px;
-    width: 400px; /* Explicitly set to match canvas dimensions */
+    width: 600px; /* Updated to match new canvas width */
     height: 650px;
     display: block; /* Prevent any inline spacing issues */
 }
@@ -55,12 +55,12 @@ canvas {
     border-radius: 3px;
 }
 
-#leaderboard {
-    width: 200px;
+#game-container #leaderboard {
+    width: 300px; /* Increased from 200px */
     margin-left: 20px;
     padding: 10px;
     height: 650px; /* Match canvas height */
-    background: #d3d3d3 !important; /* Light gray background with higher specificity */
+    background: #d3d3d3; /* Light gray background */
     border: 1px solid #ccc;
     font-family: 'Arial, sans-serif';
     overflow-y: auto; /* Add scroll if more than 20 entries */
