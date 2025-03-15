@@ -10,8 +10,11 @@ body {
 #game-container {
     display: flex;
     align-items: flex-start;
-    background-color: #87CEEB; /* Match body to avoid blue edges */
-    padding: 20px; /* Add some padding for breathing room */
+    background-color: #87CEEB; /* Match body to avoid edges */
+    padding: 10px; /* Reduced padding */
+    border: 2px solid #333; /* Optional: Add a border to frame the game */
+    border-radius: 5px;
+    max-width: 620px; /* Canvas (400px) + Leaderboard (200px) + Margin (20px) */
 }
 
 #game-area {
@@ -45,9 +48,9 @@ canvas {
     font-size: 20px;
     color: green;
     font-family: 'Arial, sans-serif';
-    text-align: left; /* Ensure text isn't centered unnecessarily */
-    white-space: nowrap; /* Prevent text wrapping */
-    background: rgba(255, 255, 255, 0.7); /* Add a slight background for readability */
+    text-align: left;
+    white-space: nowrap;
+    background: rgba(0, 128, 0, 0.7); /* Semi-transparent green for theme */
     padding: 5px;
     border-radius: 3px;
 }
@@ -56,9 +59,11 @@ canvas {
     width: 200px;
     margin-left: 20px;
     padding: 10px;
-    background: #f0f0f0;
+    height: 650px; /* Match canvas height */
+    background: #d3d3d3; /* Light gray background */
     border: 1px solid #ccc;
     font-family: 'Arial, sans-serif';
+    overflow-y: auto; /* Add scroll if more than 20 entries */
 }
 
 #leaderboard h2 {
