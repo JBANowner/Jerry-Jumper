@@ -187,7 +187,7 @@ window.onload = function() {
                 player.x + player.width > bee.x &&
                 player.y < bee.y + bee.height &&
                 player.y + player.height > bee.y) {
-                alert(`Game Over! Hit by a bee! Level: ${level}, Score: ${score}`);
+                alert(`Why you fall like that? Hit by a bee! Score: ${score}`);
                 reset();
             }
         });
@@ -197,7 +197,7 @@ window.onload = function() {
             player.dy = 0;
             player.isJumping = false;
             if (player.hasStarted && !player.onPlatform) {
-                alert(`Game Over! Level: ${level}, Score: ${score}`);
+                alert(`Why you fall like that? Fell off! Score: ${score}`);
                 reset();
             }
         }
